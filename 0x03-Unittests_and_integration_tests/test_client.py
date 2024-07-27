@@ -5,10 +5,10 @@ Unit tests for the GithubOrgClient class
 
 import unittest
 from unittest.mock import patch, PropertyMock
-from parameterized import parameterized
+from parameterized import parameterized, parameterized_class
 from client import GithubOrgClient
 from utils import get_json
-
+from fixtures import TEST_PAYLOAD
 
 class TestGithubOrgClient(unittest.TestCase):
     """
@@ -95,6 +95,76 @@ class TestGithubOrgClient(unittest.TestCase):
 
         # Assert that has_license returns the expected result
         self.assertEqual(has_license, expected)
+
+@parameterized_class((
+        'org_payload',
+        'repos_payload',
+        'expected_repos',
+        'apache2_repos'), TEST_PAYLOAD)
+
+class MockResponse:
+    """
+    Mock the Response object returned by requests.get.
+    """
+    def __init__(self, json_data):
+        self.json_data = json_data
+
+    def json(self):
+        return self.json_data
+
+
+class TestIntegrationGithubOrgClient(unittest.TestCase):
+    
+    @classmethod
+    def setUpClass(cls):
+        """
+        Set up the test environment by patching requests.get.
+        """
+        cls.get_patcher = patch('requests.get')
+        cls.mock_get = cls.get_patcher.start()
+
+        # Define side effects for different URLs
+        cls.mock_get.side_effect = lambda url: cls._get_payload_for_url(url)
+    
+    def test_public_repos(self):
+        """
+        Test that GithubOrgClient.public_repos returns the correct list
+        of repositories based on the mocked get_json method.
+        """
+        client = GithubOrgClient('test-org')
+        repos = client.public_repos()
+        self.assertEqual(repos, self.expected_repos)
+
+    @classmethod
+    def _get_payload_for_url(cls, url):
+        """
+        Return the appropriate payload based on the URL.
+        """
+        if url == 'https://api.github.com/orgs/test-org':
+            return MockResponse(cls.org_payload)
+        elif url == 'https://api.github.com/orgs/test-org/repos':
+            return MockResponse(cls.repos_payload)
+        elif url == 'https://api.github.com/orgs/apache2/repos':
+            return MockResponse(cls.apache2_repos)
+        return MockResponse({})
+
+    @classmethod
+    def tearDownClass(cls):
+        """
+        Tear down the test environment by stopping the patcher.
+        """
+        cls.get_patcher.stop()
+
+class MockResponse:
+    """
+    Mock the Response object returned by requests.get.
+    """
+    def __init__(self, json_data):
+        self.json_data = json_data
+
+    def json(self):
+        return self.json_data
+
 
 if __name__ == '__main__':
     unittest.main()

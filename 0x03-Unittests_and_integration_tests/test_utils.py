@@ -1,38 +1,27 @@
 #!/usr/bin/env python3
 """
-Unit tests for the get_value function
+Unit tests for the access_nested_map function
 """
 
 import unittest
-from typing import Dict, Any, Tuple
+from parameterized import parameterized
+from utils import access_nested_map  # Make sure the import path is correct
 
-def get_value(nested_map: Dict[str, Any], path: Tuple[str, ...]) -> Any:
+class TestAccessNestedMap(unittest.TestCase):
     """
-    Retrieve the value from a nested dictionary using a given path of keys.
-    
-    Args:
-        nested_map (Dict[str, Any]): The nested dictionary to search.
-        path (Tuple[str, ...]): The path of keys to follow.
-    
-    Returns:
-        Any: The value at the end of the path.
-    """
-    for key in path:
-        nested_map = nested_map[key]
-    return nested_map
-
-class TestGetValue(unittest.TestCase):
-    """
-    Unit test class for the get_value function.
+    Unit test class for the access_nested_map function.
     """
     
-    def test_get_value(self):
+    @parameterized.expand([
+        ({"a": 1}, ("a",), 1),
+        ({"a": {"b": 2}}, ("a",), {"b": 2}),
+        ({"a": {"b": 2}}, ("a", "b"), 2),
+    ])
+    def test_access_nested_map(self, nested_map, path, expected):
         """
-        Test the get_value function with various inputs.
+        Test the access_nested_map function with various inputs.
         """
-        self.assertEqual(get_value({"a": {"b": 2}}, ("a",)), {"b": 2})
-        self.assertEqual(get_value({"a": {"b": 2}}, ("a", "b")), 2)
+        self.assertEqual(access_nested_map(nested_map, path), expected)
 
 if __name__ == '__main__':
     unittest.main()
-

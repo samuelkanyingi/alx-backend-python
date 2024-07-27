@@ -147,6 +147,26 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
         elif url == 'https://api.github.com/orgs/apache2/repos':
             return MockResponse(cls.apache2_repos)
         return MockResponse({})
+    
+    def test_public_repos(self):
+        """
+        Test that GithubOrgClient.public_repos returns the correct list
+        of repositories based on the mocked get_json method.
+        """
+        client = GithubOrgClient('test-org')
+        repos = client.public_repos()
+        self.assertEqual(repos, self.expected_repos)
+
+
+    def test_public_repos_with_license(self):
+        """
+        Test that GithubOrgClient.public_repos returns the correct list
+        of repositories filtered by license.
+        """
+        client = GithubOrgClient('test-org')
+        # Assuming that `public_repos` accepts a license parameter
+        repos = client.public_repos(license='apache-2.0')
+        self.assertEqual(repos, [repo['name'] for repo in self.apache2_repos])
 
     @classmethod
     def tearDownClass(cls):

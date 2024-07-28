@@ -117,6 +117,7 @@ class MockResponse:
 
 
 class TestIntegrationGithubOrgClient(unittest.TestCase):
+    """ test integration """
     @classmethod
     def setUpClass(cls):
         """

@@ -10,6 +10,7 @@ from client import GithubOrgClient
 from utils import get_json
 from fixtures import TEST_PAYLOAD
 
+
 class TestGithubOrgClient(unittest.TestCase):
     """
     Unit test class for GithubOrgClient.
@@ -80,7 +81,7 @@ class TestGithubOrgClient(unittest.TestCase):
             # Check that the _public_repos_url and get_json were called once
             mock_public_repos_url.assert_called_once()
             mock_get_json.assert_called_once_with(test_url)
-    
+
     @parameterized.expand([
         ({"license": {"key": "my_license"}}, "my_license", True),
         ({"license": {"key": "other_license"}}, "my_license", False),
@@ -96,25 +97,26 @@ class TestGithubOrgClient(unittest.TestCase):
         # Assert that has_license returns the expected result
         self.assertEqual(has_license, expected)
 
+
 @parameterized_class((
         'org_payload',
         'repos_payload',
         'expected_repos',
         'apache2_repos'), TEST_PAYLOAD)
-
 class MockResponse:
     """
     Mock the Response object returned by requests.get.
     """
     def __init__(self, json_data):
+        """ initialize """
         self.json_data = json_data
 
     def json(self):
+        """ json """
         return self.json_data
 
 
 class TestIntegrationGithubOrgClient(unittest.TestCase):
-    
     @classmethod
     def setUpClass(cls):
         """
@@ -125,7 +127,7 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
 
         # Define side effects for different URLs
         cls.mock_get.side_effect = lambda url: cls._get_payload_for_url(url)
-    
+
     def test_public_repos(self):
         """
         Test that GithubOrgClient.public_repos returns the correct list
@@ -147,7 +149,7 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
         elif url == 'https://api.github.com/orgs/apache2/repos':
             return MockResponse(cls.apache2_repos)
         return MockResponse({})
-    
+
     def test_public_repos(self):
         """
         Test that GithubOrgClient.public_repos returns the correct list
@@ -156,7 +158,6 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
         client = GithubOrgClient('test-org')
         repos = client.public_repos()
         self.assertEqual(repos, self.expected_repos)
-
 
     def test_public_repos_with_license(self):
         """
@@ -175,14 +176,17 @@ class TestIntegrationGithubOrgClient(unittest.TestCase):
         """
         cls.get_patcher.stop()
 
+
 class MockResponse:
     """
     Mock the Response object returned by requests.get.
     """
     def __init__(self, json_data):
+        """ initialize """
         self.json_data = json_data
 
     def json(self):
+        """ json """
         return self.json_data
 
 
